@@ -52,6 +52,7 @@ window.options = {
   isPlayingBgm: true,
   isReplayEnabled: true,
   seed: 1,
+  highFps: true,
 };
 
 /**
@@ -69,7 +70,7 @@ let player;
 let multiplier;
 let bkpos;
 
-window.update = () => {
+window.update = (dt) => {
   if (!ticks) {
     smiles = [
       {
@@ -98,14 +99,14 @@ window.update = () => {
   //color("light_black"); // floor
   //rect(0, 93, 100, 7);
   smiles.forEach((s) => {
-    s.pos.x += (s.targetPos.x - s.pos.x) * 0.1;
-    s.pos.y += (s.targetPos.y - s.pos.y) * 0.1;
-    s.fireTicks--;
+    s.pos.x += (s.targetPos.x - s.pos.x) * 0.1 * dt;
+    s.pos.y += (s.targetPos.y - s.pos.y) * 0.1 * dt;
+    s.fireTicks -= dt;
     if (s.fireTicks < 0) {
       fire(s.pos, s.fireSpeed, s.isSmile, s.isRed);
       s.fireTicks = s.fireInterval;
     }
-    const changeRatio = 0.002 * sqrt(difficulty);
+    const changeRatio = 0.002 * sqrt(difficulty) * dt;
     if (rnd() < changeRatio) {
       s.targetPos.set(rnd(10, 90), rnd(10, 40));
     }
@@ -185,11 +186,11 @@ window.update = () => {
         pos.angleTo(
           vec(player.pos.x + t2 * player.vx * player.speed, player.pos.y)
         ),
-        speed
+        speed * dt
       );
       bullets.push({ pos: vec(pos), vel, isRed, isBonus: isSmile });
     } else {
-      const vel = vec().addWithAngle(pos.angleTo(player.pos), speed);
+      const vel = vec().addWithAngle(pos.angleTo(player.pos), speed * dt);
       bullets.push({ pos: vec(pos), vel, isRed, isBonus: isSmile });
     }
   }
